@@ -14,7 +14,6 @@ from ..getterutils import (
     get_soup,
     getter,
     meta_type,
-    multi_map,
 )
 
 
@@ -62,6 +61,7 @@ TYPE_TRANSLATION = {
     "Organisatieonderdeel": "suborganisation",
 }
 TYPE_ORDER = list(TYPE_TRANSLATION)
+TYPE_ORDER_PARSED = list(TYPE_TRANSLATION.values())
 
 
 def type_order(typ: str) -> int:
@@ -159,7 +159,11 @@ def nl_organisaties_overheid() -> Iterable[Domain]:
         raise Exception("Format of organisaties.overheid.nl xml seems to have changed")
 
     orgs_parsed = [handle_org(org) for org in orgs.contents if isinstance(org, Tag)]
-    results_org = multi_map(add_domain_from_kvk, orgs_parsed)
+    results_org = [add_domain_from_kvk(org) for org in orgs_parsed]
+    results_org.sort(
+        key=lambda x: type_order(x["type"]) if isinstance(x["type"], str) else 9999
+    )
+    # TODO map type translation?
     return dicts_to_domains(
         results_org,
         "internetadres",
