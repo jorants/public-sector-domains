@@ -21,20 +21,20 @@ from .getters import *  # noqa: F403, E402, F401
 
 
 def run_getter(thegetter: GetterDesc) -> RunResult:
-    print("Starting getter {thegetter.name}...")
+    print(f"Starting getter {thegetter.name}...")
     start = timeit.default_timer()
     try:
         res = list(thegetter.function())
     except Exception as e:
         stop = timeit.default_timer()
-        print("Getter {thegetter.name} finished with error: {e}")
+        print(f"Getter {thegetter.name} finished with error: {e}")
         return RunResult(
             success=False, exception=e, getter_name=thegetter.name, time=stop - start
         )
 
     stop = timeit.default_timer()
     print(
-        "Getter {thegetter.name} finished succesfully after {int(stop-start}) seconds with {len(res)} domains."
+        f"Getter {thegetter.name} finished succesfully after {int(stop-start)} seconds with {len(res)} domains."
     )
     return RunResult(
         success=True, domains=res, getter_name=thegetter.name, time=stop - start

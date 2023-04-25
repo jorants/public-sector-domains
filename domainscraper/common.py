@@ -11,8 +11,6 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import Iterable
 
-from . import db
-
 base_types = str | int | float | bool | None
 simple_types = base_types | list[base_types] | tuple[base_types] | dict[str, base_types]
 meta_type = dict[str, simple_types]
@@ -110,4 +108,6 @@ class RunResult:
     domains: Sequence[Domain] | None = None
 
     def __post_init__(self) -> None:
+        from . import db
+
         db.handle_result(self)

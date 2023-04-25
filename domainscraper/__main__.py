@@ -5,13 +5,20 @@ Code for the commandline functionality.
 import click
 from tabulate import tabulate
 
-from .base import run_all, run_by_names, run_due
+from .base import _all_getters, run_all, run_by_names, run_due
 from .common import RunResult
+from .db import clean_db, clear_db, create_tables
 
 
 @click.group()
 def main():
     pass
+
+
+@main.command("list")
+def list_getters():
+    for g in _all_getters:
+        print(g.name)
 
 
 @main.group()
@@ -64,17 +71,17 @@ def db():
 
 @db.command()
 def create():
-    pass
+    create_tables()
 
 
 @db.command()
 def clean():
-    pass
+    clean_db()
 
 
 @db.command()
 def clear():
-    pass
+    clear_db()
 
 
 @main.group()
@@ -90,29 +97,6 @@ def csv():
 @export.command()
 def json():
     pass
-
-
-# def main():
-#     if len(sys.argv) > 1:
-#         results = [run_by_name(arg) for arg in sys.argv[1:]]
-#     else:
-#         results = run_all()
-#     print(
-#         tabulate(
-#             [
-#                 {
-#                     "Name": r.getter_name,
-#                     "Status": "Success" if r.success else "Failed",
-#                     "Description": f"Found {len(r.domains)} domains"
-#                     if r.success and r.domains is not None
-#                     else str(r.exception),
-#                 }
-#                 for r in results
-#             ]
-#         )
-#     )
-
-#     output_to_csv("out.csv", results)
 
 
 if __name__ == "__main__":
