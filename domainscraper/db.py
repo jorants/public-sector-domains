@@ -38,7 +38,7 @@ class Base(Model):
         database = db  # This model uses the "people.db" database.
 
 
-class Scraper(Base):
+class GetterInfo(Base):
     name = CharField(unique=True)
     last_run = DateTimeField(index=True)
     time_seconds = IntegerField()
@@ -47,7 +47,7 @@ class Scraper(Base):
     error = CharField(null=True)
 
 
-class Domain(Base):
+class DomainInfo(Base):
     country = CharField(index=True)
     category = CharField(index=True)
     subcategory = CharField(index=True)
@@ -55,14 +55,14 @@ class Domain(Base):
     meta = JSONField()
     last_found = DateTimeField(index=True)
     first_found = DateTimeField(index=True)
-    found_by = ForeignKeyField(Scraper, backref="all_found")
+    found_by = ForeignKeyField(GetterInfo, backref="all_found")
 
 
 def handle_result(result: RunResult):
     now = datetime.now()
     # Create or overwrite due to uniqueness of name
-    scraper_id = (
-        Scraper.insert(
+    getter_id = (
+        GetterInfo.insert(
             name=result.getter_name,
             last_run=now,
             time_seconds=result.time,
@@ -74,13 +74,13 @@ def handle_result(result: RunResult):
         )
         .on_conflict(
             "update",
-            conflict_target=Scraper.name,
+            conflict_target=GetterInfo.name,
             preserve=[
-                Scraper.last_run,
-                Scraper.time_seconds,
-                Scraper.success,
-                Scraper.number_found,
-                Scraper.error,
+                GetterInfo.last_run,
+                GetterInfo.time_seconds,
+                GetterInfo.success,
+                GetterInfo.number_found,
+                GetterInfo.error,
             ],
         )
         .execute()
@@ -96,31 +96,31 @@ def handle_result(result: RunResult):
             meta=d.meta,
             last_found=now,
             first_found=now,
-            found_by=scraper_id,
+            found_by=getter_id,
         )
         for d in result.domains
     ]
 
     with db.atomic():
         for batch in chunked(rows_to_add, 800):
-            Domain.insert_many(batch).on_conflict(
+            DomainInfo.insert_many(batch).on_conflict(
                 "update",
-                conflict_target=Domain.domain,
+                conflict_target=DomainInfo.domain,
                 preserve=[
-                    Domain.country,
-                    Domain.category,
-                    Domain.subcategory,
-                    Domain.meta,
-                    Domain.last_found,
-                    Domain.found_by,
+                    DomainInfo.country,
+                    DomainInfo.category,
+                    DomainInfo.subcategory,
+                    DomainInfo.meta,
+                    DomainInfo.last_found,
+                    DomainInfo.found_by,
                 ],
             ).execute()
 
 
 def get_due() -> list[str]:
     """
-    We need to query all scrapers, as the logic is to much for a database query
-    A scraper is due if:
+    We need to query all getters, as the logic is to much for a database query
+    A getter is due if:
       It has been more than 90 days
       It failed last time
       If the number of seconds for it last run is more than 20 times the hnumber of days since that run. (140 second run = every week, 30 minute run = every three months)
@@ -128,43 +128,45 @@ def get_due() -> list[str]:
     from .base import _all_getters
 
     now = datetime.now()
-    all_scrapers_db = list(Scraper.select())
+    all_getter_db = list(GetterInfo.select())
     from_db = [
         s.name
-        for s in all_scrapers_db
+        for s in all_getter_db
         if ((now - s.last_run) / DAY > min(90, s.time_seconds / 20) or not s.success)
     ]
-    db_names = [s.name for s in all_scrapers_db]
+    db_names = [s.name for s in all_getter_db]
     return from_db + [
-        scraper.name for scraper in _all_getters if scraper.name not in db_names
+        getter.name for getter in _all_getters if getter.name not in db_names
     ]
 
 
 def create_tables():
-    db.create_tables([Scraper, Domain])
+    db.create_tables([GetterInfo, DomainInfo])
 
 
-def remove_old_scrapers():
+def remove_old_getters():
     """
     Removes all:
-      - Non-existing scrapers (old scrapers)
-      - Domains belonging to those scrapers
+      - Non-existing getters
+      - Domains belonging to those getters
     """
     from .base import _all_getters
 
-    in_db = set(Scraper.select().distinct())
+    in_db = set(GetterInfo.select().distinct())
     in_code = set(_all_getters)
     to_remove = in_db - in_code
-    for scraper in to_remove:
-        Domain.delete().join(Scraper).where(Scraper.name == scraper).execute()
-        Scraper.delete().where(Scraper.name == scraper).execute()
+    for getter in to_remove:
+        DomainInfo.delete().join(GetterInfo).where(GetterInfo.name == getter).execute()
+        GetterInfo.delete().where(GetterInfo.name == getter).execute()
 
 
 def remove_old_results():
     """
     Removes all domains not found in last run
     """
-    Domain.delete().join(Scraper).where(Scraper.last_run != Domain.last_found).execute()
+    DomainInfo.delete().join(GetterInfo).where(
+        GetterInfo.last_run != DomainInfo.last_found
+    ).execute()
 
 
 def clean_db():
@@ -174,7 +176,7 @@ def clean_db():
       - Domains belonging to those scrapers
       - Domains not found in last run
     """
-    remove_old_scrapers()
+    remove_old_getters()
     remove_old_results()
 
 
@@ -182,8 +184,8 @@ def clear_db():
     """
     Removes all data from the database.
     """
-    Domain.delete().execute()
-    Scraper.delete().execute()
+    DomainInfo.delete().execute()
+    GetterInfo.delete().execute()
 
 
 if __name__ == "__main__":
