@@ -115,7 +115,7 @@ def readme(readme):
 def full():
     if not os.path.exists("results"):
         os.makedirs("results")
-    update_readme("result/README.md")
+    update_readme("results/README.md")
     output_to_json("results/result.json")
     output_to_csv("results/result.csv")
     shutil.copyfile("results.db", "results/result.db")

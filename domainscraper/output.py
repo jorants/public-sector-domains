@@ -23,6 +23,7 @@ def markdown_results():
             }
             for r in GetterInfo.select()
         ],
+        headers="keys",
         tablefmt="github",
     )
 
