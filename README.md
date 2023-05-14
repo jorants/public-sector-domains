@@ -8,6 +8,7 @@ This is the *result* branch of this project, check out the [main branch](https:/
 
 ## Report
 
-|-------------------------------|---------|---------------------|
-| nl_onderwijs_all              | Success | Found 16087 domains |
-| nl_rijksoverheids_webregister | Success | Found 1828 domains  |
+| Name                          | Status   | Description         |
+|-------------------------------|----------|---------------------|
+| nl_onderwijs_all              | Success  | Found 16087 domains |
+| nl_rijksoverheids_webregister | Success  | Found 1828 domains  |
