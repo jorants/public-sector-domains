@@ -1,6 +1,7 @@
 # File overview
 
-| File                             | Purpose                                                                                                                                                              |
+| File                             | Purpose      |
+|-|-|
 | [__init__.py](__init__.py)       | Empty at the moment, should eventually contain exported interface for running as a library                                                                           |
 | [__main__.py](__main__.py)       | Contians the code for the CLI interface. Can be run directly using `python -m domainscraper`, but is also exposed through the `domainscraper` command when installed |
 | [base.py](base.py)               | Code that deals with finding and running getters                                                                                                                     |
