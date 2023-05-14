@@ -7,11 +7,6 @@ from ..getterutils import (
     getter,
 )
 
-
-def read_education_xlsx(url):
-    pass
-
-
 sheets = {
     "https://www.duo.nl/open_onderwijsdata/images/01.-hoofdvestigingen-basisonderwijs.xlsx": "primary education",
     "https://www.duo.nl/open_onderwijsdata/images/02.-alle-schoolvestigingen-basisonderwijs.xlsx": "primary education",

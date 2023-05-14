@@ -150,7 +150,7 @@ def add_domain_from_kvk(org: meta_type) -> meta_type:
     return org
 
 
-@getter
+# @getter
 def nl_organisaties_overheid() -> Iterable[Domain]:
     soup = get_soup("https://organisaties.overheid.nl/archive/exportOO.xml", xml=True)
 

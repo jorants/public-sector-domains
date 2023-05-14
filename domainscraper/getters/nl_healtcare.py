@@ -1,14 +1,6 @@
 import re
 
-from ..getterutils import (
-    Category,
-    Country,
-    Domain,
-    get_soup,
-    getter,
-    multi_map,
-    multi_map_fold,
-)
+from ..getterutils import Category, Country, Domain, get_soup, multi_map, multi_map_fold
 
 
 def clean_up_text(text):
@@ -69,7 +61,7 @@ def links_from_searchpage(searchpage):
     return list(iter_links_from_searchpage(searchpage))
 
 
-@getter
+# @getter
 def nl_healtcare_zorgkaart():
     """
     There does not seem to be a general database of healtcare providers publisched by the government, but zorgkaart.nl keeps one.
